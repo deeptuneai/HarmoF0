@@ -13,8 +13,6 @@ import torchaudio
 
 from .network import HarmoF0
 
-# os.environ["CUDA_VISIBLE_DEVICES"] = "0"
-
 
 class PitchTracker:
     def __init__(
@@ -207,8 +205,8 @@ class PitchTracker:
             self.bins_per_octave_out,
             threshold=0.0,
         )
-        pred_freq = est_freqs.flatten().cpu().numpy()
-        pred_activation = est_activations.flatten().cpu().numpy()
+        pred_freq = est_freqs.flatten()  # .cpu().numpy()
+        pred_activation = est_activations.flatten()  # .cpu().numpy()
 
         return times, pred_freq, pred_activation, pred_activation_map
 
