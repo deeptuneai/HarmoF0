@@ -92,29 +92,31 @@ class PitchTracker:
         # visit left
         if t > 0:
             for p in range(low, high):
-                self.visit(
-                    activation_map,
-                    low_map,
-                    out_map,
-                    t - 1,
-                    p,
-                    visited_set,
-                    sub_set,
-                    n_beam,
-                )
+                if (t - 1, p) not in visited_set:
+                    self.visit(
+                        activation_map,
+                        low_map,
+                        out_map,
+                        t - 1,
+                        p,
+                        visited_set,
+                        sub_set,
+                        n_beam,
+                    )
         # visit right
         if t < low_map.shape[0] - 1:
             for p in range(low, high):
-                self.visit(
-                    activation_map,
-                    low_map,
-                    out_map,
-                    t + 1,
-                    p,
-                    visited_set,
-                    sub_set,
-                    n_beam,
-                )
+                if (t + 1, p) not in visited_set:
+                    self.visit(
+                        activation_map,
+                        low_map,
+                        out_map,
+                        t + 1,
+                        p,
+                        visited_set,
+                        sub_set,
+                        n_beam,
+                    )
 
     def postProcessing(self, activation_map, high_threshold=0.8, low_threshold=0.1):
         """
