@@ -74,42 +74,29 @@ class PitchTracker:
     def visit(
         self, activation_map, low_map, out_map, t, pitch, visited_set, sub_set, n_beam
     ):
-        if (t, pitch) in visited_set or low_map[t, pitch] < 1:
-            return
-        out_map[t, pitch] = activation_map[t, pitch]
-        visited_set.add((t, pitch))
-        sub_set.add((t, pitch))
+        stack = [(t, pitch)]
+        while stack:
+            t, pitch = stack.pop()
+            if (t, pitch) in visited_set or low_map[t, pitch] < 1:
+                continue
+            out_map[t, pitch] = activation_map[t, pitch]
+            visited_set.add((t, pitch))
+            sub_set.add((t, pitch))
 
-        low = max(0, pitch - n_beam)
-        high = min(low_map.shape[1], pitch + n_beam)
-        # visit left
-        if t > 0:
-            for p in range(low, high):
-                if (t - 1, p) not in visited_set:
-                    self.visit(
-                        activation_map,
-                        low_map,
-                        out_map,
-                        t - 1,
-                        p,
-                        visited_set,
-                        sub_set,
-                        n_beam,
-                    )
-        # visit right
-        if t < low_map.shape[0] - 1:
-            for p in range(low, high):
-                if (t + 1, p) not in visited_set:
-                    self.visit(
-                        activation_map,
-                        low_map,
-                        out_map,
-                        t + 1,
-                        p,
-                        visited_set,
-                        sub_set,
-                        n_beam,
-                    )
+            low = max(0, pitch - n_beam)
+            high = min(low_map.shape[1], pitch + n_beam)
+
+            # Add left neighbors to stack
+            if t > 0:
+                for p in range(low, high):
+                    if (t - 1, p) not in visited_set:
+                        stack.append((t - 1, p))
+
+            # Add right neighbors to stack
+            if t < low_map.shape[0] - 1:
+                for p in range(low, high):
+                    if (t + 1, p) not in visited_set:
+                        stack.append((t + 1, p))
 
     def postProcessing(self, activation_map, high_threshold=0.8, low_threshold=0.1):
         """
