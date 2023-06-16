@@ -148,7 +148,6 @@ class PitchTracker:
             waveform = waveform[None, :]
 
         if sr != self.sample_rate:
-            print("convert sr from %d to %d" % (sr, self.sample_rate))
             resampler = torchaudio.transforms.Resample(sr, self.sample_rate).to(
                 self.device
             )
