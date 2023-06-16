@@ -1,9 +1,8 @@
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torchaudio
-
-import numpy as np
 from torchaudio.transforms import Spectrogram
 
 

@@ -1,7 +1,9 @@
 import argparse
-from .pitch_tracker import PitchTracker
-import torch
 import os
+
+import torch
+
+from .pitch_tracker import PitchTracker
 
 # @ex.automain
 # def main(

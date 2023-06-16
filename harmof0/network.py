@@ -1,12 +1,12 @@
 from math import sin
-import torch
-from torch._C import has_openmp
-import torch.nn as nn
-import torch.nn.functional as F
 
 import numpy as np
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from torch._C import has_openmp
 
-from .layers import MRDConv, FRDConv, WaveformToLogSpecgram
+from .layers import FRDConv, MRDConv, WaveformToLogSpecgram
 
 
 def dila_conv_block(

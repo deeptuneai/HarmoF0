@@ -1,22 +1,15 @@
 # monophonic pitch estimator using harmonic_net.
 
-# torch
-from random import shuffle
+import os
+from glob import glob
+
+import librosa
+import matplotlib.pyplot as plt
+import numpy as np
 import torch
 import torch.cuda
 import torch.nn.functional as F
 import torchaudio
-from torch.utils.data import DataLoader
-
-# system
-from tqdm import tqdm
-from datetime import datetime
-import os
-from glob import glob
-
-import numpy as np
-import matplotlib.pyplot as plt
-import librosa
 
 from .network import HarmoF0
 
@@ -203,7 +196,7 @@ class PitchTracker:
         }
 
         steps = int(np.ceil(num_frames / self.frames_per_step))
-        for i in tqdm(range(steps)):
+        for i in range(steps):
             begin = i * self.frames_per_step
             end = begin + self.frames_per_step
             waveforms = batch[:, begin:end]
