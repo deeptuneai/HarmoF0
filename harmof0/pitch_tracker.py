@@ -132,6 +132,7 @@ class PitchTracker:
                         out_map[t, pitch] = 0
         return out_map
 
+    @torch.no_grad()
     def pred(self, waveform, sr):
         # inputs:
         #     waveform:
@@ -139,6 +140,7 @@ class PitchTracker:
         # returns:
         #     time, freq, activation, activation_map
         #     [T], [T], [T], [T x 352]
+        self.net.eval()
 
         if isinstance(waveform, np.ndarray):
             waveform = torch.tensor(waveform)
@@ -184,24 +186,25 @@ class PitchTracker:
             begin = i * self.frames_per_step
             end = begin + self.frames_per_step
             waveforms = batch[:, begin:end]
-            with torch.no_grad():
-                # => [b x num_frames x (88*4)], [b x num_frames x (88*4)]
-                est_onehot, specgram = self.net.eval()(waveforms)
+            # => [b x num_frames x (88*4)], [b x num_frames x (88*4)]
+            est_onehot, specgram = self.net(waveforms)
 
-            result_dict["pred_activations_map"] += [est_onehot.squeeze(0).cpu()]
+            result_dict["pred_activations_map"] += [est_onehot.squeeze(0)]
 
-        pred_activation_map = (
-            torch.cat(result_dict["pred_activations_map"], dim=0).cpu().numpy()
-        )
+        pred_activation_map = torch.cat(result_dict["pred_activations_map"], dim=0)
 
         if self.post_processing:
-            pred_activation_map = self.postProcessing(
-                pred_activation_map, self.high_threshold, self.low_threshold
+            pred_activation_map = torch.tensor(
+                self.postProcessing(
+                    pred_activation_map.cpu().numpy(),
+                    self.high_threshold,
+                    self.low_threshold,
+                )
             )
 
         # => [num_frames ]
         est_freqs, est_activations = self.onehot_to_hz(
-            torch.tensor(pred_activation_map)[None, :],
+            pred_activation_map[None, :],
             self.bins_per_octave_out,
             threshold=0.0,
         )
